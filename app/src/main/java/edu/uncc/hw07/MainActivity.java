@@ -11,9 +11,10 @@ import android.os.Bundle;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener {
+public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, SignUpFragment.SignUpListener {
     final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     FirebaseUser firebaseUser;
@@ -57,5 +58,53 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
                   //  .replace(R.id.rootView, ForumsFragment.newInstance(this.firebaseUser))
                     .commit();
         });
+    }
+
+    @Override
+    public void createAccount(String name, String email, String password) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(createTask -> {
+            if (!createTask.isSuccessful()) {
+                Exception exception = createTask.getException();
+                assert exception != null;
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("An Error Occurred")
+                        .setMessage(exception.getLocalizedMessage())
+                        .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
+                        .show();
+
+                return;
+            }
+
+            UserProfileChangeRequest request = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(name)
+                    .build();
+
+            FirebaseUser user = createTask.getResult().getUser();
+            assert user != null;
+            user.updateProfile(request).addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    Exception exception = task.getException();
+                    assert exception != null;
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("An Error Occurred")
+                            .setMessage(exception.getLocalizedMessage())
+                            .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
+                            .show();
+
+                    return;
+                }
+
+                this.firebaseUser = user;
+
+                getSupportFragmentManager().beginTransaction()
+                    //    .replace(R.id.rootView, ForumsFragment.newInstance(this.firebaseUser))
+                        .commit();
+            });
+        });
+    }
+
+    @Override
+    public void goLogin() {
+        getSupportFragmentManager().popBackStack();
     }
 }
