@@ -1,3 +1,7 @@
+// Homework Assignment 07
+// Group22_HW07
+// Stephanie Lee Karp & Ken Stanley
+
 package edu.uncc.hw07;
 
 import android.content.Context;
