@@ -15,6 +15,7 @@ public class Forum implements Serializable {
     private String forum_title;
     private String forum_description;
     private Timestamp created_at;
+    private int forum_likes;
 
     public Forum() {}
 
@@ -50,6 +51,10 @@ public class Forum implements Serializable {
         return created_at;
     }
 
+    public int getForum_likes() {
+        return forum_likes;
+    }
+
     public Forum setForum_id(String forum_id) {
         this.forum_id = forum_id;
         return this;
@@ -80,6 +85,21 @@ public class Forum implements Serializable {
         return this;
     }
 
+    public Forum setForum_likes(int forum_likes) {
+        this.forum_likes = forum_likes;
+        return this;
+    }
+
+    public Forum addForum_like(int forum_likes) {
+        this.forum_likes++;
+        return this;
+    }
+
+    public Forum removeForum_like(int forum_likes) {
+        this.forum_likes--;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Forum{" +
@@ -89,6 +109,7 @@ public class Forum implements Serializable {
                 ", forum_title='" + forum_title + '\'' +
                 ", forum_description='" + forum_description + '\'' +
                 ", created_at=" + created_at +
+                ", forum_likes=" + forum_likes +
                 '}';
     }
 }
