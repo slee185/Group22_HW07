@@ -51,8 +51,7 @@ public class CreateForumFragment extends Fragment {
             }
         });
 
-        requireActivity().setTitle("New Forum");
-
+        requireActivity().setTitle(R.string.create_forum);
     }
 
     CreateForumListener mListener;

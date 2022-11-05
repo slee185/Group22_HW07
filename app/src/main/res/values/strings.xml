@@ -13,5 +13,6 @@
     <string name="create_account_label">Create New Account</string>
     <string name="forum_title_label">Forum Title</string>
     <string name="forum_description_label">Forum Description</string>
-
+    <string name="forum_likes_label"> Likes |</string>
+    <string name="forums_label">Forums</string>
 </resources>

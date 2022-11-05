@@ -8,6 +8,8 @@ import static java.lang.Double.valueOf;
 
 import java.io.Serializable;
 import com.google.firebase.Timestamp;
+
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class Forum implements Serializable {
@@ -17,7 +19,7 @@ public class Forum implements Serializable {
     private String forum_title;
     private String forum_description;
     private Timestamp created_at;
-    private double forum_likes;
+    private int forum_likes = 0;
 
     public Forum() {}
 
@@ -53,7 +55,7 @@ public class Forum implements Serializable {
         return created_at;
     }
 
-    public double getForum_likes() {
+    public int getForum_likes() {
         return forum_likes;
     }
 
@@ -87,19 +89,13 @@ public class Forum implements Serializable {
         return this;
     }
 
-    public Forum setForum_likes(double  forum_likes) {
+    public Forum setForum_likes(int  forum_likes, String forum_id) {
         this.forum_likes = forum_likes;
         return this;
     }
 
-    public double addForum_likes(double forum_likes) {
-        forum_likes++;
-        return forum_likes;
-    }
-
-    public double removeForum_likes(double forum_likes) {
-        forum_likes--;
-        return forum_likes;
+    public void setForum_likes(int forum_likes) {
+        this.forum_likes = forum_likes;
     }
 
     @Override

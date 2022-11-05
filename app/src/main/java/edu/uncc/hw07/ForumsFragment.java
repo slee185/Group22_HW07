@@ -4,8 +4,6 @@
 
 package edu.uncc.hw07;
 
-import static java.lang.String.valueOf;
-
 import android.content.Context;
 import android.os.Bundle;
 
@@ -30,9 +28,13 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 import edu.uncc.hw07.databinding.FragmentForumsBinding;
@@ -105,7 +107,7 @@ public class ForumsFragment extends Fragment {
                 holder.setCreated_by(model.getUser_name());
                 holder.setCreated_by_uid(model.getUser_id(), firebaseUser);
                 holder.setForum_text(model.getForum_description());
-                holder.setForum_likes(model.getForum_likes());
+                holder.setForum_likes(model.getForum_likes(), model.getForum_id());
                 holder.setForum_date(model.getCreated_at());
                 holder.setForum_id(model.getForum_id());
             }
@@ -113,18 +115,6 @@ public class ForumsFragment extends Fragment {
             @Override
             public void onChildChanged(@NonNull ChangeEventType type, @NonNull DocumentSnapshot snapshot, int newIndex, int oldIndex) {
                 super.onChildChanged(type, snapshot, newIndex, oldIndex);
-
-                Forum model = snapshot.toObject(Forum.class);
-
-                assert model != null;
-//                switch (type) {
-//                    case ADDED:
-//                        break;
-//                    case CHANGED:
-//                        break;
-//                    case REMOVED:
-//                        break;
-//                }
             }
 
             @NonNull
@@ -137,7 +127,7 @@ public class ForumsFragment extends Fragment {
 
         binding.forumsRecyclerView.setAdapter(adapter);
 
-        requireActivity().setTitle("Forums");
+        requireActivity().setTitle(R.string.forums_label);
     }
 
     @Override
@@ -171,7 +161,7 @@ public class ForumsFragment extends Fragment {
 
     public class ForumHolder extends RecyclerView.ViewHolder {
         private final View view;
-        int i = 0;
+        Boolean liked = false;
 
         public ForumHolder(@NonNull View itemView) {
             super(itemView);
@@ -199,25 +189,32 @@ public class ForumsFragment extends Fragment {
             textView.setText(forum_text);
         }
 
-        void setForum_likes(Double forum_likes) {
+        void setForum_likes(int forum_likes, String forum_id) {
             TextView textView = view.findViewById(R.id.textViewForumLikes);
-            textView.setText(valueOf(forum_likes));
+            textView.setText(forum_likes + " Likes | ");
 
             ImageView imageViewLike = view.findViewById(R.id.imageViewLike);
             imageViewLike.setOnClickListener(view -> {
-                if (i == 0) {
+                if (!liked) {
                     imageViewLike.setImageResource(R.drawable.like_favorite);
-                    i++;
+                    addLike(forum_id);
+                    liked = true;
+                    Log.d("demo", "onClick: Post liked");
                 } else {
                     imageViewLike.setImageResource(R.drawable.like_not_favorite);
-                    i--;
+                    removeLike(forum_id);
+                    liked = false;
+                    Log.d("demo", "onClick: Post unliked");
                 }
             });
         }
 
         void setForum_date(Timestamp forum_date) {
             TextView textView = view.findViewById(R.id.textViewForumDate);
-            textView.setText(forum_date.toString());
+            Date date = forum_date.toDate();
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.getDefault());
+            String dateFormat = sdf.format(date);
+            textView.setText(dateFormat);
         }
 
         void setForum_id(String forum_id) {
@@ -232,9 +229,40 @@ public class ForumsFragment extends Fragment {
                         .addOnSuccessListener(unused -> Log.d("demo", "Forum successfully deleted"))
                         .addOnFailureListener(e -> Log.w("demo", "Error deleting forum", e))
                 );
-                Log.d("demo", "onClick: Clicking worked");
             }
         }
+    }
+
+    public void addLike(String forum_id) {
+        firebaseFirestore
+                .collection("Users")
+                .document(firebaseUser.getUid())
+                .collection("Forums")
+                .document(forum_id)
+                .update("forum_likes", FieldValue.increment(1));
+
+        firebaseFirestore
+                .collection("Users")
+                .document(firebaseUser.getUid())
+                .collection("Forums")
+                .document(forum_id)
+                .update("likedByUsers", FieldValue.arrayUnion(firebaseUser.getUid()));
+    }
+
+    public void removeLike(String forum_id) {
+        firebaseFirestore
+                .collection("Users")
+                .document(firebaseUser.getUid())
+                .collection("Forums")
+                .document(forum_id)
+                .update("forum_likes", FieldValue.increment(-1));
+
+        firebaseFirestore
+                .collection("Users")
+                .document(firebaseUser.getUid())
+                .collection("Forums")
+                .document(forum_id)
+                .update("likedByUsers", FieldValue.arrayRemove(firebaseUser.getUid()));
     }
 
     interface ForumsListener {
