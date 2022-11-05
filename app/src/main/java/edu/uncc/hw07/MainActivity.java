@@ -14,7 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, SignUpFragment.SignUpListener {
+public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, SignUpFragment.SignUpListener, ForumsFragment.ForumsListener {
     final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     FirebaseUser firebaseUser;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
             this.firebaseUser = task.getResult().getUser();
 
             getSupportFragmentManager().beginTransaction()
-                  //  .replace(R.id.rootView, ForumsFragment.newInstance(this.firebaseUser))
+                    .replace(R.id.rootView, ForumsFragment.newInstance(this.firebaseUser))
                     .commit();
         });
     }
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
                 this.firebaseUser = user;
 
                 getSupportFragmentManager().beginTransaction()
-                    //    .replace(R.id.rootView, ForumsFragment.newInstance(this.firebaseUser))
+                        .replace(R.id.rootView, ForumsFragment.newInstance(this.firebaseUser))
                         .commit();
             });
         });
@@ -106,5 +106,20 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
     @Override
     public void goLogin() {
         getSupportFragmentManager().popBackStack();
+    }
+
+    @Override
+    public void logout() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.rootView, new LoginFragment())
+                .commit();
+    }
+
+    @Override
+    public void goAddForum() {
+//        getSupportFragmentManager().beginTransaction()
+//                .remove(R.id.rootView, CreateForumFragment.newInstance())
+//                .addToBackStack(null)
+//                .commit();
     }
 }

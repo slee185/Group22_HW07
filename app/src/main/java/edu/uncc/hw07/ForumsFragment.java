@@ -21,26 +21,29 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.firebase.ui.common.ChangeEventType;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.Objects;
 
-import edu.uncc.hw07.databinding.FragmentForumBinding;
+import edu.uncc.hw07.databinding.FragmentForumsBinding;
 
 public class ForumsFragment extends Fragment {
 
-    FragmentForumBinding binding;
+    FragmentForumsBinding binding;
 
     private static final String ARG_USER = "user";
 
     private FirebaseUser firebaseUser;
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-    private FirestoreRecyclerAdapter<ForumFragment, ForumHolder> adapter;
+    private FirestoreRecyclerAdapter<Forum, ForumHolder> adapter;
 
     public ForumsFragment() {
         // Required empty public constructor
@@ -64,13 +67,22 @@ public class ForumsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentForumBinding.inflate(inflater, container, false);
+        binding = FragmentForumsBinding.inflate(inflater, container, false);
+                //FragmentForumsBindingBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        binding.buttonLogout.setOnClickListener(v -> {
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            auth.signOut();
+            mListener.logout();
+        });
+
+        binding.buttonCreateForum.setOnClickListener(v -> mListener.goAddForum());
 
         binding.forumsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -84,13 +96,53 @@ public class ForumsFragment extends Fragment {
                 .setQuery(query, Forum.class)
                 .build();
 
+        adapter = new FirestoreRecyclerAdapter<Forum, ForumHolder>(options) {
 
+            @Override
+            public void onBindViewHolder(@NonNull ForumHolder holder, int position, @NonNull Forum model) {
+                holder.setForum_title(model.getForum_title());
+                holder.setCreated_by(model.getUser_name());
+                holder.setCreated_by_uid(model.getUser_id(), firebaseUser);
+                holder.setForum_text(model.getForum_description());
+                holder.setForum_likes(model.getForum_likes());
+                holder.setForum_date(model.getCreated_at());
+                holder.setForum_id(model.getForum_id());
+            }
+
+            @Override
+            public void onChildChanged(@NonNull ChangeEventType type, @NonNull DocumentSnapshot snapshot, int newIndex, int oldIndex) {
+                super.onChildChanged(type, snapshot, newIndex, oldIndex);
+
+                Forum model = snapshot.toObject(Forum.class);
+
+                assert model != null;
+                switch (type) {
+                    case ADDED:
+                        break;
+                    case CHANGED:
+                        break;
+                    case REMOVED:
+                        break;
+                }
+            }
+
+            @NonNull
+            @Override
+            public ForumHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.forum_row_item, parent, false);
+                return new ForumHolder(view);
+            }
+        };
+
+        binding.forumsRecyclerView.setAdapter(adapter);
+
+        requireActivity().setTitle("Forums");
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.buttonCreateForum) {
-            mListener.goAddCourse();
+            mListener.goAddForum();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -118,6 +170,7 @@ public class ForumsFragment extends Fragment {
 
     public class ForumHolder extends RecyclerView.ViewHolder {
         private final View view;
+        int i = 0;
 
         public ForumHolder(@NonNull View itemView) {
             super(itemView);
@@ -145,7 +198,7 @@ public class ForumsFragment extends Fragment {
             textView.setText(forum_text);
         }
 
-        void setForum_likes(String forum_likes) {
+        void setForum_likes(int forum_likes) {
             TextView textView = view.findViewById(R.id.textViewForumLikes);
             textView.setText(forum_likes);
         }
@@ -157,15 +210,17 @@ public class ForumsFragment extends Fragment {
 
         void setForum_id(String forum_id) {
             ImageView imageViewLike = view.findViewById(R.id.imageViewLike);
-            imageViewLike.setOnClickListener(view -> firebaseFirestore
-                    .collection("Users")
-                    .document(firebaseUser.getUid())
-                    .collection("Forums")
-                    .document(forum_id)
-            );
+            imageViewLike.setOnClickListener(view -> {
+                if (i == 0) {
+                    imageViewLike.setImageResource(R.drawable.like_favorite);
+                    i++;
+                } else {
+                    imageViewLike.setImageResource(R.drawable.like_not_favorite);
+                    i--;
+                }
+            });
 
             ImageView imageViewDelete = view.findViewById(R.id.imageViewDelete);
-
             if (imageViewDelete.isEnabled()) {
                 imageViewDelete.setOnClickListener(view -> firebaseFirestore
                         .collection("Users")
@@ -178,11 +233,12 @@ public class ForumsFragment extends Fragment {
                 );
                 Log.d("demo", "onClick: Clicking worked");
             }
-
         }
     }
 
     interface ForumsListener {
-        void goAddCourse();
+        void goAddForum();
+
+        void logout();
     }
 }
