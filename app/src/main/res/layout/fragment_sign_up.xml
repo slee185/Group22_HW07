@@ -9,12 +9,13 @@
     tools:context=".SignUpFragment" >
 
     <EditText
-        android:id="@+id/editTextName"
+        android:id="@+id/editTextForumTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName"
         android:hint="@string/name_label"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,31 +28,33 @@
         android:ems="10"
         android:hint="@string/email_label"
         android:inputType="textEmailAddress"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextName" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextForumTitle" />
 
     <EditText
-        android:id="@+id/editTextPassword"
+        android:id="@+id/editTextForumDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="@string/password_label"
         android:inputType="textPassword"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextEmail" />
 
     <Button
-        android:id="@+id/buttonSignup"
+        android:id="@+id/buttonSubmit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/submit_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextForumDescription" />
 
     <Button
         android:id="@+id/buttonCancel"
@@ -61,6 +64,6 @@
         android:layout_marginTop="16dp"
         android:text="@string/cancel_label"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonSignup" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonSubmit" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,6 +11,7 @@
     <string name="create_forum">New Forum</string>
     <string name="posts_label">Posts</string>
     <string name="create_account_label">Create New Account</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="forum_title_label">Forum Title</string>
+    <string name="forum_description_label">Forum Description</string>
+
 </resources>
