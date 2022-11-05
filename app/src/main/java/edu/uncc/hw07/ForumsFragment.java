@@ -4,6 +4,8 @@
 
 package edu.uncc.hw07;
 
+import static java.lang.String.valueOf;
+
 import android.content.Context;
 import android.os.Bundle;
 
@@ -68,7 +70,6 @@ public class ForumsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentForumsBinding.inflate(inflater, container, false);
-                //FragmentForumsBindingBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -116,14 +117,14 @@ public class ForumsFragment extends Fragment {
                 Forum model = snapshot.toObject(Forum.class);
 
                 assert model != null;
-                switch (type) {
-                    case ADDED:
-                        break;
-                    case CHANGED:
-                        break;
-                    case REMOVED:
-                        break;
-                }
+//                switch (type) {
+//                    case ADDED:
+//                        break;
+//                    case CHANGED:
+//                        break;
+//                    case REMOVED:
+//                        break;
+//                }
             }
 
             @NonNull
@@ -198,17 +199,10 @@ public class ForumsFragment extends Fragment {
             textView.setText(forum_text);
         }
 
-        void setForum_likes(int forum_likes) {
+        void setForum_likes(Double forum_likes) {
             TextView textView = view.findViewById(R.id.textViewForumLikes);
-            textView.setText(forum_likes);
-        }
+            textView.setText(valueOf(forum_likes));
 
-        void setForum_date(Timestamp forum_date) {
-            TextView textView = view.findViewById(R.id.textViewForumDate);
-            textView.setText(forum_date.toString());
-        }
-
-        void setForum_id(String forum_id) {
             ImageView imageViewLike = view.findViewById(R.id.imageViewLike);
             imageViewLike.setOnClickListener(view -> {
                 if (i == 0) {
@@ -219,7 +213,14 @@ public class ForumsFragment extends Fragment {
                     i--;
                 }
             });
+        }
 
+        void setForum_date(Timestamp forum_date) {
+            TextView textView = view.findViewById(R.id.textViewForumDate);
+            textView.setText(forum_date.toString());
+        }
+
+        void setForum_id(String forum_id) {
             ImageView imageViewDelete = view.findViewById(R.id.imageViewDelete);
             if (imageViewDelete.isEnabled()) {
                 imageViewDelete.setOnClickListener(view -> firebaseFirestore

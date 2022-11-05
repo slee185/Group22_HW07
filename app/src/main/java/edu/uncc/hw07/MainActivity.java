@@ -14,7 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, SignUpFragment.SignUpListener, ForumsFragment.ForumsListener {
+public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, SignUpFragment.SignUpListener, ForumsFragment.ForumsListener, CreateForumFragment.CreateForumListener {
     final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     FirebaseUser firebaseUser;
@@ -117,9 +117,39 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
 
     @Override
     public void goAddForum() {
-//        getSupportFragmentManager().beginTransaction()
-//                .remove(R.id.rootView, CreateForumFragment.newInstance())
-//                .addToBackStack(null)
-//                .commit();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.rootView, new CreateForumFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void goForums() {
+        getSupportFragmentManager().popBackStack();
+    }
+
+    @Override
+    public void createForum(String forumTitle, String forumDescription) {
+        Forum forum = new Forum(firebaseUser.getUid(), firebaseUser.getDisplayName(), forumTitle, forumDescription);
+
+        firebaseFirestore
+                .collection("Users")
+                .document(forum.getUser_id())
+                .collection("Forums")
+                .document(forum.getForum_id())
+                .set(forum)
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Exception exception = task.getException();
+                        assert exception != null;
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("An Error Occurred")
+                                .setMessage(exception.getLocalizedMessage())
+                                .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
+                                .show();
+                        return;
+                    }
+                    goForums();
+                });
     }
 }

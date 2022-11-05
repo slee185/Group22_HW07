@@ -4,6 +4,8 @@
 
 package edu.uncc.hw07;
 
+import static java.lang.Double.valueOf;
+
 import java.io.Serializable;
 import com.google.firebase.Timestamp;
 import java.util.UUID;
@@ -15,7 +17,7 @@ public class Forum implements Serializable {
     private String forum_title;
     private String forum_description;
     private Timestamp created_at;
-    private int forum_likes;
+    private double forum_likes;
 
     public Forum() {}
 
@@ -51,7 +53,7 @@ public class Forum implements Serializable {
         return created_at;
     }
 
-    public int getForum_likes() {
+    public double getForum_likes() {
         return forum_likes;
     }
 
@@ -85,19 +87,19 @@ public class Forum implements Serializable {
         return this;
     }
 
-    public Forum setForum_likes(int forum_likes) {
+    public Forum setForum_likes(double  forum_likes) {
         this.forum_likes = forum_likes;
         return this;
     }
 
-    public Forum addForum_like(int forum_likes) {
-        this.forum_likes++;
-        return this;
+    public double addForum_likes(double forum_likes) {
+        forum_likes++;
+        return forum_likes;
     }
 
-    public Forum removeForum_like(int forum_likes) {
-        this.forum_likes--;
-        return this;
+    public double removeForum_likes(double forum_likes) {
+        forum_likes--;
+        return forum_likes;
     }
 
     @Override

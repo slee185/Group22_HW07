@@ -11,9 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import edu.uncc.hw07.databinding.FragmentCreateForumBinding;
 
@@ -24,7 +26,6 @@ public class CreateForumFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -37,6 +38,20 @@ public class CreateForumFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        binding.buttonCancel.setOnClickListener(v -> mListener.goForums());
+
+        binding.buttonSubmit.setOnClickListener(v -> {
+            String forumTitle = binding.editTextForumTitle.getText().toString();
+            String forumDescription = binding.editTextForumDescription.getText().toString();
+
+            if (forumTitle.isEmpty() || forumDescription.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter all the fields", Toast.LENGTH_SHORT).show();
+            } else {
+                mListener.createForum(forumTitle, forumDescription);
+            }
+        });
+
+        requireActivity().setTitle("New Forum");
 
     }
 
@@ -49,6 +64,7 @@ public class CreateForumFragment extends Fragment {
     }
 
     interface CreateForumListener {
-
+        void goForums();
+        void createForum(String forumTitle, String forumDescription);
     }
 }
