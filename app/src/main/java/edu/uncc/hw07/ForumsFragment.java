@@ -11,16 +11,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+
+import java.util.Objects;
 
 import edu.uncc.hw07.databinding.FragmentForumBinding;
 
@@ -32,7 +40,7 @@ public class ForumsFragment extends Fragment {
 
     private FirebaseUser firebaseUser;
     private final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
-    // private FirestoreRecyclerAdapter<ForumFragment, ForumHolder> adapter;
+    private FirestoreRecyclerAdapter<ForumFragment, ForumHolder> adapter;
 
     public ForumsFragment() {
         // Required empty public constructor
@@ -66,6 +74,15 @@ public class ForumsFragment extends Fragment {
 
         binding.forumsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        Query query = firebaseFirestore
+                .collection("Users")
+                .document(firebaseUser.getUid())
+                .collection("Forums")
+                .orderBy("created_at", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<Forum> options = new FirestoreRecyclerOptions.Builder<Forum>()
+                .setQuery(query, Forum.class)
+                .build();
 
 
     }
@@ -82,13 +99,13 @@ public class ForumsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-       // adapter.startListening();
+        adapter.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-      //  adapter.stopListening();
+        adapter.stopListening();
     }
 
     ForumsListener mListener;
@@ -97,6 +114,72 @@ public class ForumsFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mListener = (ForumsListener) context;
+    }
+
+    public class ForumHolder extends RecyclerView.ViewHolder {
+        private final View view;
+
+        public ForumHolder(@NonNull View itemView) {
+            super(itemView);
+            this.view = itemView;
+        }
+
+        void setForum_title(String forum_title) {
+            TextView textView = view.findViewById(R.id.textViewForumTitle);
+            textView.setText(forum_title);
+        }
+
+        void setCreated_by(String user_name) {
+            TextView textView = view.findViewById(R.id.textViewForumCreatedBy);
+            textView.setText(user_name);
+        }
+
+        void setCreated_by_uid(String created_by_uid, FirebaseUser firebaseUser) {
+            ImageView imageViewDelete = view.findViewById(R.id.imageViewDelete);
+            imageViewDelete.setEnabled(Objects.equals(created_by_uid, firebaseUser.getUid()));
+            imageViewDelete.setVisibility(imageViewDelete.isEnabled() ? View.VISIBLE : View.INVISIBLE);
+        }
+
+        void setForum_text(String forum_text) {
+            TextView textView = view.findViewById(R.id.textViewForumText);
+            textView.setText(forum_text);
+        }
+
+        void setForum_likes(String forum_likes) {
+            TextView textView = view.findViewById(R.id.textViewForumLikes);
+            textView.setText(forum_likes);
+        }
+
+        void setForum_date(Timestamp forum_date) {
+            TextView textView = view.findViewById(R.id.textViewForumDate);
+            textView.setText(forum_date.toString());
+        }
+
+        void setForum_id(String forum_id) {
+            ImageView imageViewLike = view.findViewById(R.id.imageViewLike);
+            imageViewLike.setOnClickListener(view -> firebaseFirestore
+                    .collection("Users")
+                    .document(firebaseUser.getUid())
+                    .collection("Forums")
+                    .document(forum_id)
+            );
+
+            ImageView imageViewDelete = view.findViewById(R.id.imageViewDelete);
+
+            if (imageViewDelete.isEnabled()) {
+                imageViewDelete.setOnClickListener(view -> firebaseFirestore
+                        .collection("Users")
+                        .document(firebaseUser.getUid())
+                        .collection("Forums")
+                        .document(forum_id)
+                        .delete()
+                        .addOnSuccessListener(unused -> Log.d("demo", "Forum successfully deleted"))
+                        .addOnFailureListener(e -> Log.w("demo", "Error deleting forum", e))
+                );
+                Log.d("demo", "onClick: Clicking worked");
+            }
+
+        }
     }
 
     interface ForumsListener {
