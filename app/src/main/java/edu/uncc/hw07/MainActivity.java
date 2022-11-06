@@ -14,7 +14,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, SignUpFragment.SignUpListener, ForumsFragment.ForumsListener, CreateForumFragment.CreateForumListener {
+import org.checkerframework.checker.units.qual.C;
+
+public class MainActivity extends AppCompatActivity implements LoginFragment.LoginListener, SignUpFragment.SignUpListener, ForumsFragment.ForumsListener, CreateForumFragment.CreateForumListener, ForumFragment.ForumListener {
     final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     FirebaseUser firebaseUser;
@@ -116,6 +118,14 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
     }
 
     @Override
+    public void goToForum(String forum_id) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.rootView, ForumFragment.newInstance(forum_id))
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
     public void goAddForum() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.rootView, new CreateForumFragment())
@@ -150,6 +160,29 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
                         return;
                     }
                     goForums();
+                });
+    }
+
+    @Override
+    public void createComment(FirebaseUser firebaseUser, String commentText, String forumId) {
+        Comment comment = new Comment(firebaseUser.getUid(), firebaseUser.getDisplayName(), commentText);
+
+        firebaseFirestore
+                .collection("Users")
+                .document(firebaseUser.getUid())
+                .collection("Forums")
+                .document(forumId)
+                .set(comment)
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Exception exception = task.getException();
+                        assert exception != null;
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("An Error Occurred")
+                                .setMessage(exception.getLocalizedMessage())
+                                .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
+                                .show();
+                    }
                 });
     }
 }

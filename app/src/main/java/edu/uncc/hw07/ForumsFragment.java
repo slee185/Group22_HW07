@@ -230,6 +230,11 @@ public class ForumsFragment extends Fragment {
                         .addOnFailureListener(e -> Log.w("demo", "Error deleting forum", e))
                 );
             }
+
+            binding.forumsRecyclerView.setOnClickListener(v -> {
+                mListener.goToForum(forum_id);
+                Log.d("demo", "onClick: click worked");
+            });
         }
     }
 
@@ -269,5 +274,7 @@ public class ForumsFragment extends Fragment {
         void goAddForum();
 
         void logout();
+
+        void goToForum(String forum_id);
     }
 }

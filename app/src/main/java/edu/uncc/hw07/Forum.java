@@ -21,7 +21,7 @@ public class Forum implements Serializable {
     private Timestamp created_at;
     private int forum_likes = 0;
 
-    public Forum() {}
+    public Forum(){}
 
     public Forum(String user_id, String user_name, String forum_title, String forum_description) {
         this.user_id = user_id;

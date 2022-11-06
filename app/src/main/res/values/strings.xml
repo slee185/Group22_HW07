@@ -15,4 +15,5 @@
     <string name="forum_description_label">Forum Description</string>
     <string name="forum_likes_label"> Likes |</string>
     <string name="forums_label">Forums</string>
+    <string name="forum_label">Forum</string>
 </resources>
