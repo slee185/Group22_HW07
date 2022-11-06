@@ -47,11 +47,13 @@ public class ForumFragment extends Fragment {
     private static final String ARG_FORUMTITLE = "forumTitle";
     private static final String ARG_FORUMTEXT = "forumText";
     private static final String ARG_FORUMAUTHOR = "forumAuthor";
+    private static final String ARG_USERID = "userId";
 
     private String forumId;
     private String forumTitle;
     private String forumText;
     private String forumAuthor;
+    private String userId;
 
     final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private FirestoreRecyclerAdapter<Comment, CommentHolder> adapter;
@@ -61,7 +63,7 @@ public class ForumFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ForumFragment newInstance(String forumId, FirebaseUser user, String forumTitle, String forumText, String forumAuthor) {
+    public static ForumFragment newInstance(String forumId, FirebaseUser user, String forumTitle, String forumText, String forumAuthor, String userId) {
         ForumFragment fragment = new ForumFragment();
         Bundle args = new Bundle();
         args.putString(ARG_FORUMID, forumId);
@@ -69,6 +71,7 @@ public class ForumFragment extends Fragment {
         args.putString(ARG_FORUMTITLE, forumTitle);
         args.putString(ARG_FORUMTEXT, forumText);
         args.putString(ARG_FORUMAUTHOR, forumAuthor);
+        args.putString(ARG_USERID, userId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -82,6 +85,7 @@ public class ForumFragment extends Fragment {
             forumTitle = getArguments().getString(ARG_FORUMTITLE);
             forumText = getArguments().getString(ARG_FORUMTEXT);
             forumAuthor = getArguments().getString(ARG_FORUMAUTHOR);
+            userId = getArguments().getString(ARG_USERID);
         }
     }
 
@@ -111,14 +115,14 @@ public class ForumFragment extends Fragment {
             if (commentText.isEmpty()) {
                 Toast.makeText(getContext(), "Please enter a comment", Toast.LENGTH_SHORT).show();
             } else
-                mListener.createComment(firebaseUser, commentText, forumId);
+                mListener.createComment(firebaseUser, commentText, forumId, userId);
         });
 
         binding.commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         Query query = firebaseFirestore
                 .collection("Users")
-                .document(firebaseUser.getUid())
+                .document(userId)
                 .collection("Forums")
                 .document(forumId)
                 .collection("comments")
@@ -227,6 +231,6 @@ public class ForumFragment extends Fragment {
     }
 
     interface ForumListener {
-        void createComment(FirebaseUser firebaseUser, String commentText, String forumId);
+        void createComment(FirebaseUser firebaseUser, String commentText, String forumId, String userId);
     }
 }

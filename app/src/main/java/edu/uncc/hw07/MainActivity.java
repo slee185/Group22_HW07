@@ -119,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
     }
 
     @Override
-    public void goToForum(String forum_id, FirebaseUser user, String forumTitle, String forumText, String forumAuthor) {
+    public void goToForum(String forum_id, FirebaseUser user, String forumTitle, String forumText, String forumAuthor, String userId) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.rootView, ForumFragment.newInstance(forum_id, firebaseUser, forumTitle, forumText, forumAuthor))
+                .replace(R.id.rootView, ForumFragment.newInstance(forum_id, firebaseUser, forumTitle, forumText, forumAuthor, userId))
                 .addToBackStack(null)
                 .commit();
     }
@@ -165,14 +165,16 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
     }
 
     @Override
-    public void createComment(FirebaseUser firebaseUser, String commentText, String forumId) {
+    public void createComment(FirebaseUser firebaseUser, String commentText, String forumId, String userId) {
         Comment comment = new Comment(firebaseUser.getUid(), firebaseUser.getDisplayName(), commentText);
 
         firebaseFirestore
                 .collection("Users")
-                .document(firebaseUser.getUid())
+                .document(userId)
                 .collection("Forums")
                 .document(forumId)
+                .collection("comments")
+                .document(comment.getComment_id())
                 .set(comment)
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
@@ -183,9 +185,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
                                 .setMessage(exception.getLocalizedMessage())
                                 .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
                                 .show();
-                        Log.d("demo", "onClick: comment created");
-                    } else {
-                        Log.d("demo", "onClick: comment creation failed");
                     }
                 });
     }
