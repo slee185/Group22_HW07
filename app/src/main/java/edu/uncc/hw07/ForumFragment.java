@@ -27,6 +27,10 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.AggregateQuery;
+import com.google.firebase.firestore.AggregateQuerySnapshot;
+import com.google.firebase.firestore.AggregateSource;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -54,6 +58,7 @@ public class ForumFragment extends Fragment {
     private String forumText;
     private String forumAuthor;
     private String userId;
+    private int commentCount = 0;
 
     final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private FirestoreRecyclerAdapter<Comment, CommentHolder> adapter;
@@ -107,7 +112,8 @@ public class ForumFragment extends Fragment {
         binding.textViewForumTitle.setText(forumTitle);
         binding.textViewForumCreatedBy.setText(forumAuthor);
         binding.textViewForumText.setText(forumText);
-        binding.textViewCommentsCount.setText(" Comments");
+        binding.textViewCommentsCount.setText(commentCount + " Comments");
+
 
         binding.buttonSubmitComment.setOnClickListener(v -> {
             String commentText = binding.editTextComment.getText().toString();
@@ -116,6 +122,7 @@ public class ForumFragment extends Fragment {
                 Toast.makeText(getContext(), "Please enter a comment", Toast.LENGTH_SHORT).show();
             } else
                 mListener.createComment(firebaseUser, commentText, forumId, userId);
+            binding.textViewCommentsCount.setText(commentCount + " Comments");
         });
 
         binding.commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -215,18 +222,37 @@ public class ForumFragment extends Fragment {
         void setComment_id(String comment_id, String forum_id) {
             ImageView imageViewDelete = view.findViewById(R.id.imageViewDelete);
             if (imageViewDelete.isEnabled()) {
-                imageViewDelete.setOnClickListener(view -> firebaseFirestore
-                        .collection("Users")
-                        .document(firebaseUser.getUid())
-                        .collection("Forums")
-                        .document(forum_id)
-                        .collection("comments")
-                        .document(comment_id)
-                        .delete()
-                        .addOnSuccessListener(unused -> Log.d("demo", "Comment successfully deleted"))
-                        .addOnFailureListener(e -> Log.w("demo", "Error deleting comment", e))
-                );
+                imageViewDelete.setOnClickListener(view -> {
+                    firebaseFirestore
+                            .collection("Users")
+                            .document(firebaseUser.getUid())
+                            .collection("Forums")
+                            .document(forum_id)
+                            .collection("comments")
+                            .document(comment_id)
+                            .delete()
+                            .addOnSuccessListener(unused -> Log.d("demo", "Comment successfully deleted"))
+                            .addOnFailureListener(e -> Log.w("demo", "Error deleting comment", e));
+                    binding.textViewCommentsCount.setText(commentCount + " Comments");
+                });
             }
+
+            CollectionReference collection = firebaseFirestore
+                    .collection("Users")
+                    .document(firebaseUser.getUid())
+                    .collection("Forums")
+                    .document(forum_id)
+                    .collection("comments");
+
+            AggregateQuery countComments = collection.count();
+
+            countComments.get(AggregateSource.SERVER).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    AggregateQuerySnapshot snapshot = task.getResult();
+                    commentCount = (int) snapshot.getCount();
+                    Log.d("demo", "Count: " + snapshot.getCount());
+                }
+            });
         }
     }
 
