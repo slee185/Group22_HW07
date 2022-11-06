@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -118,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
     }
 
     @Override
-    public void goToForum(String forum_id) {
+    public void goToForum(String forum_id, FirebaseUser user, String forumTitle, String forumText, String forumAuthor) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.rootView, ForumFragment.newInstance(forum_id))
+                .replace(R.id.rootView, ForumFragment.newInstance(forum_id, firebaseUser, forumTitle, forumText, forumAuthor))
                 .addToBackStack(null)
                 .commit();
     }
@@ -182,6 +183,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Log
                                 .setMessage(exception.getLocalizedMessage())
                                 .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
                                 .show();
+                        Log.d("demo", "onClick: comment created");
+                    } else {
+                        Log.d("demo", "onClick: comment creation failed");
                     }
                 });
     }

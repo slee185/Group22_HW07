@@ -109,7 +109,8 @@ public class ForumsFragment extends Fragment {
                 holder.setForum_text(model.getForum_description());
                 holder.setForum_likes(model.getForum_likes(), model.getForum_id());
                 holder.setForum_date(model.getCreated_at());
-                holder.setForum_id(model.getForum_id());
+                holder.setForum_id(model.getForum_id(), model.getForum_title(), model.getForum_description(), model.getUser_name());
+                holder.position = holder.getLayoutPosition();
             }
 
             @Override
@@ -162,6 +163,7 @@ public class ForumsFragment extends Fragment {
     public class ForumHolder extends RecyclerView.ViewHolder {
         private final View view;
         Boolean liked = false;
+        int position;
 
         public ForumHolder(@NonNull View itemView) {
             super(itemView);
@@ -217,7 +219,7 @@ public class ForumsFragment extends Fragment {
             textView.setText(dateFormat);
         }
 
-        void setForum_id(String forum_id) {
+        void setForum_id(String forum_id, String forumTitle, String forumText, String forumAuthor) {
             ImageView imageViewDelete = view.findViewById(R.id.imageViewDelete);
             if (imageViewDelete.isEnabled()) {
                 imageViewDelete.setOnClickListener(view -> firebaseFirestore
@@ -231,10 +233,7 @@ public class ForumsFragment extends Fragment {
                 );
             }
 
-            binding.forumsRecyclerView.setOnClickListener(v -> {
-                mListener.goToForum(forum_id);
-                Log.d("demo", "onClick: click worked");
-            });
+            itemView.setOnClickListener(view -> mListener.goToForum(forum_id, firebaseUser, forumTitle, forumText, forumAuthor));
         }
     }
 
@@ -275,6 +274,6 @@ public class ForumsFragment extends Fragment {
 
         void logout();
 
-        void goToForum(String forum_id);
+        void goToForum(String forum_id, FirebaseUser user, String forumTitle, String forumText, String forumAuthor);
     }
 }

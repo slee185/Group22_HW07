@@ -43,8 +43,15 @@ public class ForumFragment extends Fragment {
     FragmentForumBinding binding;
 
     private static final String ARG_FORUMID = "forumId";
+    private static final String ARG_USER = "user";
+    private static final String ARG_FORUMTITLE = "forumTitle";
+    private static final String ARG_FORUMTEXT = "forumText";
+    private static final String ARG_FORUMAUTHOR = "forumAuthor";
 
     private String forumId;
+    private String forumTitle;
+    private String forumText;
+    private String forumAuthor;
 
     final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
     private FirestoreRecyclerAdapter<Comment, CommentHolder> adapter;
@@ -54,10 +61,14 @@ public class ForumFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ForumFragment newInstance(String forumId) {
+    public static ForumFragment newInstance(String forumId, FirebaseUser user, String forumTitle, String forumText, String forumAuthor) {
         ForumFragment fragment = new ForumFragment();
         Bundle args = new Bundle();
         args.putString(ARG_FORUMID, forumId);
+        args.putParcelable(ARG_USER, user);
+        args.putString(ARG_FORUMTITLE, forumTitle);
+        args.putString(ARG_FORUMTEXT, forumText);
+        args.putString(ARG_FORUMAUTHOR, forumAuthor);
         fragment.setArguments(args);
         return fragment;
     }
@@ -67,6 +78,10 @@ public class ForumFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             forumId = getArguments().getString(ARG_FORUMID);
+            firebaseUser = getArguments().getParcelable(ARG_USER);
+            forumTitle = getArguments().getString(ARG_FORUMTITLE);
+            forumText = getArguments().getString(ARG_FORUMTEXT);
+            forumAuthor = getArguments().getString(ARG_FORUMAUTHOR);
         }
     }
 
@@ -84,6 +99,11 @@ public class ForumFragment extends Fragment {
         binding.textViewForumCreatedBy.findViewById(R.id.textViewForumCreatedBy);
         binding.textViewForumText.findViewById(R.id.textViewForumText);
         binding.textViewCommentsCount.findViewById(R.id.textViewCommentsCount);
+
+        binding.textViewForumTitle.setText(forumTitle);
+        binding.textViewForumCreatedBy.setText(forumAuthor);
+        binding.textViewForumText.setText(forumText);
+        binding.textViewCommentsCount.setText(" Comments");
 
         binding.buttonSubmitComment.setOnClickListener(v -> {
             String commentText = binding.editTextComment.getText().toString();
@@ -139,13 +159,13 @@ public class ForumFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        // adapter.startListening();
+        adapter.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        // adapter.stopListening();
+        adapter.stopListening();
     }
 
     ForumListener mListener;
