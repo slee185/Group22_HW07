@@ -123,6 +123,7 @@ public class ForumFragment extends Fragment {
             } else
                 mListener.createComment(firebaseUser, commentText, forumId, userId);
             binding.textViewCommentsCount.setText(commentCount + " Comments");
+            binding.editTextComment.setText("");
         });
 
         binding.commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
